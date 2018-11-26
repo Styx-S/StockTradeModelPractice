@@ -73,6 +73,10 @@ END_TIME = '2018-11-01'
 OP_BUY = 0
 OP_SALL = 1
 
+NONTRAINABLE = False
+TRAINABLE = True
+DATA_ROOT_PATH = './data/'
+
 def fetchData(id, start_time, end_time):
     data = ts.get_hist_data(id, start=start_time, end=end_time, ktype='D')
     return data
@@ -88,6 +92,7 @@ def loadData(id):
         data = pd.read_csv(f'./data/{filename}')
         data['average'] = (data['high'] + data['low'])/2
         data = data.iloc[::-1]
+        data = data.reset_index(drop=True)
         return data
     else:
         return None
@@ -99,16 +104,50 @@ def trainTestSplit(data, train_ratio=0.8):
     test_set = data.iloc[train_count:]
     return train_set, test_set
 
-def runModel(model, data, found, trainable=False):
+def runModel(model, data, init_fund, trainable=False):
     train_set, test_set = trainTestSplit(data)
-    # print(test_set)
     if trainable == True:
         # train_set, test_set = trainTestSplit(data)
         # drawKLineDiagram(test_set)
         # drawAverage(data)
-        cmd = model(found, train_set, test_set)
+        cmd = model(init_fund, train_set, data)
     else:
-        cmd = model(found, test_set)
+        cmds, fund, had = model(init_fund, data)
+        last_op = cmds[-1]
+        last_price = data.ix[last_op[0]]['average']
+        current_stock_value = had * last_price
+        operation_count = len(cmds)
+
+
+
+        current_stock_count = 0
+        fund = init_fund
+        funds = [fund]
+        total_assets = [fund]
+        stock_list = [0]
+        for index, op, stocks in cmds:
+            if op == OP_BUY:
+                current_stock_count += stocks
+                stock_list.append(current_stock_count)
+                buy_stock_values = stocks * data.ix[index]['average']
+                fund = fund - buy_stock_values
+                funds.append(fund)
+                total_assets.append(fund + current_stock_count * data.ix[index]['average'])
+            elif op == OP_SALL:
+                current_stock_count -= stocks
+                stock_list.append(current_stock_count)
+                sall_stock_values = stocks * data.ix[index]['average']
+                fund = fund + sall_stock_values
+                funds.append(fund)
+                total_assets.append(fund + current_stock_count * data.ix[index]['average'])
+
+        # plt.plot(funds)
+        # plt.plot(total_assets)
+        # plt.grid()
+        # plt.show()
+
+    return funds, total_assets, stock_list
+
 
 
 
@@ -154,6 +193,23 @@ def drawKLineDiagram(data):
     plt.show()
 
 
+def pipeline(model, init_fund, model_type=NONTRAINABLE):
+
+    if not os.path.exists(model.__name__):
+        os.mkdir(model.__name__)
+    model_profile_path = './' + model.__name__
+
+    file_name = os.listdir(DATA_ROOT_PATH)
+    for name in file_name:
+        if not os.path.exists(model_profile_path + '/' + os.path.splitext(name)[0]):
+            os.mkdir(model_profile_path + '/' + os.path.splitext(name)[0])
+
+        profile_path = model_profile_path + '/' + os.path.splitext(name)[0]
+        data = loadData(name)
+        funds, total_assets, stock_count = runModel(model, data, init_fund, model_type)
+        record = pd.DataFrame({'funds': funds, 'total_assets': total_assets, 'stock_count': stock_count})
+        record.to_csv(profile_path + '/' + 'profile.csv')
+
 
 
 
@@ -168,5 +224,6 @@ if __name__ == '__main__':
     #         except:
     #             print(k, stock_class[k]['name'])
 
-    data = loadData('000001')
-    runModel(rand_trading_model, data, 10000, False)
+    # data = loadData('002230')
+    # runModel(rand_trading_model, data, 10000, False)
+    pipeline(rand_trading_model, 10000, NONTRAINABLE)
