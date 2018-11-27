@@ -8,6 +8,7 @@ import datetime
 import mpl_finance as mpf
 from RandTradingModel import rand_trading_model
 from trad_strategy import tradeStrategy
+from SlidingPredictModel import sliding_predict_model
 
 TECH_SOTCK = {'002230': {'name': 'iflytek', 'data': None},
               '002415': {'name': 'hikvision', 'data': None},
@@ -108,10 +109,8 @@ def trainTestSplit(data, train_ratio=0.8):
 def runModel(model, data, init_fund, trainable=False):
     train_set, test_set = trainTestSplit(data)
     if trainable == True:
-        # train_set, test_set = trainTestSplit(data)
-        # drawKLineDiagram(test_set)
-        # drawAverage(data)
-        cmd = model(init_fund, train_set, data)
+        cmds, fund, had = model(init_fund, data, test_set, train_set)
+
     else:
         cmds, fund, had = model(init_fund, data)
         last_op = cmds[-1]
@@ -122,31 +121,32 @@ def runModel(model, data, init_fund, trainable=False):
         print(fund)
         print(fund + current_stock_value)
 
-        current_stock_count = 0
-        fund = init_fund
-        funds = [fund]
-        total_assets = [fund]
-        stock_list = [0]
-        for index, op, stocks in cmds:
-            if op == OP_BUY:
-                current_stock_count += stocks
-                stock_list.append(current_stock_count)
-                buy_stock_values = stocks * data.ix[index]['average']
-                fund = fund - buy_stock_values
-                funds.append(fund)
-                total_assets.append(fund + current_stock_count * data.ix[index]['average'])
-            elif op == OP_SALL:
-                current_stock_count -= stocks
-                stock_list.append(current_stock_count)
-                sall_stock_values = stocks * data.ix[index]['average']
-                fund = fund + sall_stock_values
-                funds.append(fund)
-                total_assets.append(fund + current_stock_count * data.ix[index]['average'])
+    current_stock_count = 0
+    fund = init_fund
+    funds = [fund]
+    total_assets = [fund]
+    stock_list = [0]
 
-        plt.plot(funds, 'o-')
-        plt.plot(total_assets)
-        plt.grid()
-        plt.show()
+    for index, op, stocks in cmds:
+        if op == OP_BUY:
+            current_stock_count += stocks
+            stock_list.append(current_stock_count)
+            buy_stock_values = stocks * data.ix[index]['average']
+            fund = fund - buy_stock_values
+            funds.append(fund)
+            total_assets.append(fund + current_stock_count * data.ix[index]['average'])
+        elif op == OP_SALL:
+            current_stock_count -= stocks
+            stock_list.append(current_stock_count)
+            sall_stock_values = stocks * data.ix[index]['average']
+            fund = fund + sall_stock_values
+            funds.append(fund)
+            total_assets.append(fund + current_stock_count * data.ix[index]['average'])
+
+    plt.plot(funds, 'o-')
+    plt.plot(total_assets)
+    plt.grid()
+    plt.show()
 
     return funds, total_assets, stock_list
 
@@ -227,7 +227,7 @@ if __name__ == '__main__':
     #             print(k, stock_class[k]['name'])
 
     data = loadData('002230')
-    runModel(tradeStrategy, data, 10000)
+    runModel(tradeStrategy, data, 10000, False)
     # drawKLineDiagram(data)
     # runModel(rand_trading_model, data, 10000, False)
     # pipeline(rand_trading_model, 10000, NONTRAINABLE)

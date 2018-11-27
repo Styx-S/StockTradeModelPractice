@@ -29,6 +29,7 @@ def tradeStrategy(init_fund, data):
             op = 0
             index = i
             buy_cost = (-trend / 10) * 0.5 * fund
+            # print(buy_cost)
             buy_vol = buy_cost // data.ix[i]['average']
             buy_cost = buy_vol * data.ix[i]['average']
             fund -= buy_cost
