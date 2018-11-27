@@ -50,12 +50,13 @@ def tradeStrategy(init_fund, data):
                 buy_cost = buy_vol * data.ix[i]['average']
 
                 if fund - buy_cost + (volumn + buy_vol) * data.ix[i]['average'] > (0-prev_assets) * 0.01:
-                    fund -= buy_cost
-                    cmds.append((index, op, buy_vol))
-                    volumn += buy_vol
+                    if volumn * data.ix[i]['average'] < fund * 0.1:
+                        fund -= buy_cost
+                        cmds.append((index, op, buy_vol))
+                        volumn += buy_vol
 
-                    if fund <= prev_fund * 0.5:
-                        can_buy = 1
+                        if fund <= prev_fund * 0.5:
+                            can_buy = 1
 
                     prev_assets = fund - buy_cost + volumn * data.ix[i]['average'] >= prev_assets
 
