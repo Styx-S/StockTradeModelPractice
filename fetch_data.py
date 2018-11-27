@@ -109,7 +109,7 @@ def trainTestSplit(data, train_ratio=0.8):
 def runModel(model, data, init_fund, trainable=False):
     train_set, test_set = trainTestSplit(data)
     if trainable == True:
-        cmds, fund, had = model(init_fund, data, test_set, train_set)
+        cmds, fund, had = model(init_fund, test_set, train_set)
 
     else:
         cmds, fund, had = model(init_fund, data)
