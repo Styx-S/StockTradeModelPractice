@@ -227,7 +227,7 @@ if __name__ == '__main__':
     #             print(k, stock_class[k]['name'])
 
     data = loadData('002230')
-    runModel(tradeStrategy, data, 10000, False)
+    runModel(sliding_predict_model, data, 10000, True)
     # drawKLineDiagram(data)
     # runModel(rand_trading_model, data, 10000, False)
     # pipeline(rand_trading_model, 10000, NONTRAINABLE)
