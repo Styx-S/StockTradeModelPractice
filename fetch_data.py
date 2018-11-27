@@ -118,8 +118,8 @@ def runModel(model, data, init_fund, trainable=False):
         current_stock_value = had * last_price
         operation_count = len(cmds)
 
-        print(fund)
-        print(fund + current_stock_value)
+        # print(fund)
+        # print(fund + current_stock_value)
 
     current_stock_count = 0
     fund = init_fund
@@ -146,10 +146,10 @@ def runModel(model, data, init_fund, trainable=False):
             total_assets.append(fund + current_stock_count * data.ix[index]['average'])
             idx.append(index)
 
-    plt.plot(idx, funds, 'o-')
-    plt.plot(idx, total_assets)
-    plt.grid()
-    plt.show()
+    # plt.plot(idx, funds, 'o-')
+    # plt.plot(idx, total_assets)
+    # plt.grid()
+    # plt.show()
 
     return funds, total_assets, stock_list
 
@@ -219,18 +219,11 @@ def pipeline(model, init_fund, model_type=NONTRAINABLE):
 
 
 if __name__ == '__main__':
-    # for stock_class in STOCK_LIST:
-    #     print(getattr(stock_class, '__name__'))
-    #     for k in stock_class.keys():
-    #         file_name = f"./data/{k}_{stock_class[k]['name']}.csv"
-    #         stock_class[k]['data'] = fetchData(k, START_TIME, END_TIME)
-    #         try:
-    #             stock_class[k]['data'].to_csv(file_name)
-    #         except:
-    #             print(k, stock_class[k]['name'])
-
-    data = loadData('601008')
-    runModel(tradeStrategy, data, 10000, False)
-    drawKLineDiagram(data)
+    # data = loadData('601008')
+    # runModel(tradeStrategy, data, 10000, False)
+    # drawKLineDiagram(data)
     # runModel(rand_trading_model, data, 10000, False)
-    # pipeline(rand_trading_model, 10000, NONTRAINABLE)
+    trainble = [False, False, True]
+    models = [rand_trading_model, tradeStrategy, sliding_predict_model]
+    for model, train in zip(models, trainble):
+        pipeline(model, 10000, train)
