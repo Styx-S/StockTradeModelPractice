@@ -229,8 +229,8 @@ if __name__ == '__main__':
     #         except:
     #             print(k, stock_class[k]['name'])
 
-    data = loadData('000001')
+    data = loadData('601008')
     runModel(tradeStrategy, data, 10000, False)
-    # drawKLineDiagram(data)
+    drawKLineDiagram(data)
     # runModel(rand_trading_model, data, 10000, False)
     # pipeline(rand_trading_model, 10000, NONTRAINABLE)
