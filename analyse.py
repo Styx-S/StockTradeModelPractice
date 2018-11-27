@@ -57,9 +57,7 @@ def VMAP(data, time_delta):
     total_sum = 0
     volume_sum = 0
     for i in range(n):
-        high_price = data['high']
-        low_price = data['low']
-        price = (high_price + low_price) / 2
+        price = data['average']
         volume = data['volume']
         total_sum += price * volume
         volume_sum += volume
@@ -74,6 +72,10 @@ def TMAP(data, time_delta):
         price = (high_price + low_price) / 2
         price_sum += price
     return price_sum / n
+
+def VWAPModel(init_fund, data, duration=5):
+    pass
+
 
 if __name__ == '__main__':
 

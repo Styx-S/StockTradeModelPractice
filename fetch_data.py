@@ -7,6 +7,7 @@ from matplotlib.pylab import date2num
 import datetime
 import mpl_finance as mpf
 from RandTradingModel import rand_trading_model
+from trad_strategy import tradeStrategy
 
 TECH_SOTCK = {'002230': {'name': 'iflytek', 'data': None},
               '002415': {'name': 'hikvision', 'data': None},
@@ -118,7 +119,8 @@ def runModel(model, data, init_fund, trainable=False):
         current_stock_value = had * last_price
         operation_count = len(cmds)
 
-
+        print(fund)
+        print(fund + current_stock_value)
 
         current_stock_count = 0
         fund = init_fund
@@ -141,10 +143,10 @@ def runModel(model, data, init_fund, trainable=False):
                 funds.append(fund)
                 total_assets.append(fund + current_stock_count * data.ix[index]['average'])
 
-        # plt.plot(funds)
-        # plt.plot(total_assets)
-        # plt.grid()
-        # plt.show()
+        plt.plot(funds, 'o-')
+        plt.plot(total_assets)
+        plt.grid()
+        plt.show()
 
     return funds, total_assets, stock_list
 
@@ -224,6 +226,8 @@ if __name__ == '__main__':
     #         except:
     #             print(k, stock_class[k]['name'])
 
-    # data = loadData('002230')
+    data = loadData('002230')
+    runModel(tradeStrategy, data, 10000)
+    # drawKLineDiagram(data)
     # runModel(rand_trading_model, data, 10000, False)
-    pipeline(rand_trading_model, 10000, NONTRAINABLE)
+    # pipeline(rand_trading_model, 10000, NONTRAINABLE)
