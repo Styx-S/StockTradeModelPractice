@@ -31,7 +31,7 @@ def sliding_predict_model(initial_fund, test_set, train_set, predict_length = 15
     train_data = list()
     # learn the underlying rule (if it does exist)
     for i in range(len(price_list)):
-        print(predict_length)
+        # print(predict_length)
         if i > (len(price_list) - predict_length - 1):
             break
         seq = list()

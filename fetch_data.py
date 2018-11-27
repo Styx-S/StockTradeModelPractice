@@ -151,7 +151,7 @@ def runModel(model, data, init_fund, trainable=False):
     # plt.grid()
     # plt.show()
 
-    return funds, total_assets, stock_list
+    return idx, funds, total_assets, stock_list
 
 
 
@@ -211,8 +211,8 @@ def pipeline(model, init_fund, model_type=NONTRAINABLE):
 
         profile_path = model_profile_path + '/' + os.path.splitext(name)[0]
         data = loadData(name)
-        funds, total_assets, stock_count = runModel(model, data, init_fund, model_type)
-        record = pd.DataFrame({'funds': funds, 'total_assets': total_assets, 'stock_count': stock_count})
+        idx, funds, total_assets, stock_count = runModel(model, data, init_fund, model_type)
+        record = pd.DataFrame({'index':idx, 'funds': funds, 'total_assets': total_assets, 'stock_count': stock_count})
         record.to_csv(profile_path + '/' + 'profile.csv')
 
 
