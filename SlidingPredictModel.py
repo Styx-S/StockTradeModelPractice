@@ -46,9 +46,11 @@ def sliding_predict_model(initial_fund, test_set, train_set, predict_length = 15
     for index, day in test_set.iterrows():
         predict_list.append(day[price_indexes])
         if len(predict_list) < predict_length - 1:
+            # print(len(predict_list))
             continue
         elif len(predict_list) == predict_length - 1:
             sum = 0
+            # print('dfasdfsadf')
             for vector, weight in train_data:
                 # calculate the similarity and whether it's profit or loss
                 sum += ccs(predict_list, vector) * weight

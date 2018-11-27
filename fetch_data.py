@@ -9,6 +9,7 @@ import mpl_finance as mpf
 from RandTradingModel import rand_trading_model
 from trad_strategy import tradeStrategy
 from SlidingPredictModel import sliding_predict_model
+import random
 
 TECH_SOTCK = {'002230': {'name': 'iflytek', 'data': None},
               '002415': {'name': 'hikvision', 'data': None},
@@ -113,6 +114,7 @@ def runModel(model, data, init_fund, trainable=False):
 
     else:
         cmds, fund, had = model(init_fund, data)
+
         last_op = cmds[-1]
         last_price = data.ix[last_op[0]]['average']
         current_stock_value = had * last_price
@@ -128,7 +130,14 @@ def runModel(model, data, init_fund, trainable=False):
     stock_list = [0]
     idx = [0]
 
+    stock_price_change = [data.ix[0]['average']]
+    assets_change = [fund]
+
     for index, op, stocks in cmds:
+
+        stock_price_change.append(data.ix[index]['average'] - stock_price_change[-1])
+        assets_change.append(fund + data.ix[index]['average'] * current_stock_count - total_assets[-1])
+
         if op == OP_BUY:
             current_stock_count += stocks
             stock_list.append(current_stock_count)
@@ -137,6 +146,7 @@ def runModel(model, data, init_fund, trainable=False):
             funds.append(fund)
             total_assets.append(fund + current_stock_count * data.ix[index]['average'])
             idx.append(index)
+
         elif op == OP_SALL:
             current_stock_count -= stocks
             stock_list.append(current_stock_count)
@@ -150,10 +160,51 @@ def runModel(model, data, init_fund, trainable=False):
     # plt.plot(idx, total_assets)
     # plt.grid()
     # plt.show()
+    # print(assets_change)
+
+    ax1 = plt.subplot(211)
+    ax1.plot(stock_price_change, 'o-')
+    ax1.grid()
+    ax1.set_title('Stock price change')
+
+    ax2 = plt.subplot(212)
+    ax2.plot(assets_change, 'o')
+    ax2.grid()
+    ax2.set_title('Assets change')
+
+    plt.show()
 
     return idx, funds, total_assets, stock_list
 
-
+def testModel(model, data, init_fund, trainable=False, n_iter=1):
+    train_set, test_set = trainTestSplit(data, 0.8)
+    window_size = 30
+    interest = 0
+    calc_count = 0
+    if trainable == True:
+        for i in range(n_iter):
+            for idx in range(test_set.shape[0]):
+                scaling_factor = random.randint(3, 4)
+                actual_window_size = window_size * scaling_factor
+                if idx + actual_window_size >= test_set.shape[0]:
+                    continue
+                run_test_set = test_set.iloc[idx:idx+actual_window_size]
+                cmds, fund, had = model(init_fund, run_test_set, train_set)
+                calc_count += 1
+                interest += (fund + had * test_set.iloc[idx+actual_window_size-1]['average'] - init_fund) / init_fund
+                print(fund, had, run_test_set.shape, cmds)
+    else:
+        for i in range(n_iter):
+            for idx in range(data.shape[0]):
+                scaling_factor = random.randint(1, 3)
+                actual_window_size = window_size * scaling_factor
+                if idx + actual_window_size >= test_set.shape[0]:
+                    continue
+                run_data = data.iloc[idx:idx+actual_window_size]
+                cmds, fund, had = model(init_fund, run_data)
+                calc_count += 1
+                interest += (fund + had * data.iloc[idx + actual_window_size - 1]['average'] - init_fund) / init_fund
+    print(interest / calc_count)
 
 
 def drawAverage(data):
@@ -219,11 +270,16 @@ def pipeline(model, init_fund, model_type=NONTRAINABLE):
 
 
 if __name__ == '__main__':
-    # data = loadData('601008')
+    data = loadData('601628')
     # runModel(tradeStrategy, data, 10000, False)
     # drawKLineDiagram(data)
+
+
     # runModel(rand_trading_model, data, 10000, False)
-    trainble = [False, False, True]
-    models = [rand_trading_model, tradeStrategy, sliding_predict_model]
-    for model, train in zip(models, trainble):
-        pipeline(model, 10000, train)
+    testModel(tradeStrategy, data, 10000, False)
+
+
+    # trainble = [False, False, True]
+    # models = [rand_trading_model, tradeStrategy, sliding_predict_model]
+    # for model, train in zip(models, trainble):
+    #     pipeline(model, 10000, train)
