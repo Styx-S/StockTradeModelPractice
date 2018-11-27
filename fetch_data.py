@@ -126,6 +126,7 @@ def runModel(model, data, init_fund, trainable=False):
     funds = [fund]
     total_assets = [fund]
     stock_list = [0]
+    idx = [0]
 
     for index, op, stocks in cmds:
         if op == OP_BUY:
@@ -135,6 +136,7 @@ def runModel(model, data, init_fund, trainable=False):
             fund = fund - buy_stock_values
             funds.append(fund)
             total_assets.append(fund + current_stock_count * data.ix[index]['average'])
+            idx.append(index)
         elif op == OP_SALL:
             current_stock_count -= stocks
             stock_list.append(current_stock_count)
@@ -142,9 +144,10 @@ def runModel(model, data, init_fund, trainable=False):
             fund = fund + sall_stock_values
             funds.append(fund)
             total_assets.append(fund + current_stock_count * data.ix[index]['average'])
+            idx.append(index)
 
-    plt.plot(funds, 'o-')
-    plt.plot(total_assets)
+    plt.plot(idx, funds, 'o-')
+    plt.plot(idx, total_assets)
     plt.grid()
     plt.show()
 
@@ -226,8 +229,8 @@ if __name__ == '__main__':
     #         except:
     #             print(k, stock_class[k]['name'])
 
-    data = loadData('002230')
-    runModel(sliding_predict_model, data, 10000, True)
+    data = loadData('000001')
+    runModel(tradeStrategy, data, 10000, False)
     # drawKLineDiagram(data)
     # runModel(rand_trading_model, data, 10000, False)
     # pipeline(rand_trading_model, 10000, NONTRAINABLE)
