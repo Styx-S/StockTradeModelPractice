@@ -192,7 +192,7 @@ def testModel(model, data, init_fund, trainable=False, n_iter=1):
                 cmds, fund, had = model(init_fund, run_test_set, train_set)
                 calc_count += 1
                 interest += (fund + had * test_set.iloc[idx+actual_window_size-1]['average'] - init_fund) / init_fund
-                print(fund, had, run_test_set.shape, cmds)
+                # print(fund, had, run_test_set.shape, cmds)
     else:
         for i in range(n_iter):
             for idx in range(data.shape[0]):
@@ -275,8 +275,8 @@ if __name__ == '__main__':
     # drawKLineDiagram(data)
 
 
-    runModel(tradeStrategy, data, 10000, False)
-    # testModel(tradeStrategy, data, 10000, False)
+    # runModel(tradeStrategy, data, 10000, False)
+    testModel(sliding_predict_model, data, 10000, True)
 
 
     # trainble = [False, False, True]
