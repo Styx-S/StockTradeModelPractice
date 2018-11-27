@@ -3,7 +3,7 @@ import numpy as np
 
 def tradeStrategy(init_fund, data):
     data_length = data.shape[0]
-    start_idx = 10
+    start_idx = data.index[0] + 10
     cmds = []
     volumn = 0
     fund = init_fund

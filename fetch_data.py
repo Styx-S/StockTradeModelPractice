@@ -156,11 +156,11 @@ def runModel(model, data, init_fund, trainable=False):
             total_assets.append(fund + current_stock_count * data.ix[index]['average'])
             idx.append(index)
 
-    # plt.plot(idx, funds, 'o-')
-    # plt.plot(idx, total_assets)
-    # plt.grid()
-    # plt.show()
-    # print(assets_change)
+    plt.plot(idx, funds, 'o-')
+    plt.plot(idx, total_assets)
+    plt.grid()
+    plt.show()
+    print(assets_change)
 
     ax1 = plt.subplot(211)
     ax1.plot(stock_price_change, 'o-')
@@ -275,8 +275,8 @@ if __name__ == '__main__':
     # drawKLineDiagram(data)
 
 
-    # runModel(rand_trading_model, data, 10000, False)
-    testModel(tradeStrategy, data, 10000, False)
+    runModel(tradeStrategy, data, 10000, False)
+    # testModel(tradeStrategy, data, 10000, False)
 
 
     # trainble = [False, False, True]
