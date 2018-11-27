@@ -109,7 +109,7 @@ def trainTestSplit(data, train_ratio=0.8):
 def runModel(model, data, init_fund, trainable=False):
     train_set, test_set = trainTestSplit(data)
     if trainable == True:
-        cmds, fund, had = model(init_fund, data, test_set, train_set)
+        cmds, fund, had = model(init_fund, test_set, train_set)
 
     else:
         cmds, fund, had = model(init_fund, data)
@@ -227,7 +227,7 @@ if __name__ == '__main__':
     #             print(k, stock_class[k]['name'])
 
     data = loadData('002230')
-    runModel(tradeStrategy, data, 10000, False)
+    runModel(sliding_predict_model, data, 10000, True)
     # drawKLineDiagram(data)
     # runModel(rand_trading_model, data, 10000, False)
     # pipeline(rand_trading_model, 10000, NONTRAINABLE)
